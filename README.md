@@ -4,7 +4,7 @@ An AI travel agent built with **LangChain** and **Streamlit**. Tell it where you
 flights, picks a hotel, checks the weather, builds a day-wise itinerary, estimates the budget and explains why it
 chose each option.
 
-**Live demo:** `https://YOUR-APP-NAME.streamlit.app` &nbsp;|&nbsp; **Author:** Nandini 
+**Live demo:** `https://aiagent-travel-planner-tnabdrge9fdtkn99epf4en.streamlit.app/` &nbsp;|&nbsp; **Author:** Nandini 
 
 ![Overview](screenshots/overview.png)
 
