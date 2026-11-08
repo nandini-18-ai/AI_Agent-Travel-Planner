@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 120
+exclude = venv,.venv,__pycache__
+# The long lines in agent.py are LLM prompt text, which reads better unwrapped.
+per-file-ignores =
+    agent.py:E501
