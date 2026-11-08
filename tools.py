@@ -58,19 +58,16 @@ def hotel_recommendation_tool(
 
 
 @tool
-def places_discovery_tool(
-    city: str, min_rating: float = 0.0, place_types: str = "", limit: int = 8
-) -> str:
+def places_discovery_tool(city: str, place_types: str = "") -> str:
     """Find attractions (points of interest) in a city, best rated first.
 
     Args:
-        city: City name.
-        min_rating: Minimum rating (0-5).
+        city: City name, e.g. "Goa".
         place_types: Comma separated types such as "temple,museum,beach,park,
-            fort,lake,market,monument". Empty for all types.
-        limit: Maximum number of places to return.
+            fort,lake,market,monument". Use an empty string for all types.
+    Returns up to 20 places with their type and rating.
     """
-    return json.dumps(core.discover_places(city, min_rating, _split(place_types), limit))
+    return json.dumps(core.discover_places(city, 0.0, _split(place_types), 20))
 
 
 @tool

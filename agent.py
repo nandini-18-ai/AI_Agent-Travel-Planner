@@ -32,7 +32,7 @@ Collect the data needed for the trip by calling the tools:
 
 Rules:
 - Use ONLY data returned by the tools. Never invent flights, hotels, places, prices, temperatures or ratings.
-- Pass tool arguments as plain strings and numbers only (for example min_rating 0, limit 8, place_types "temple,beach").
+- Pass tool arguments as plain strings and numbers only (for example place_types "temple,beach").
 - When all tool calls are finished, reply with one short plain sentence such as "All data collected." Do not write the itinerary and do not write any JSON.
 """
 
