@@ -11,12 +11,15 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from typing import Any
 
 import core
 from config import LLM_PROVIDERS, get_secret
 from planner import trip_length
 from tools import ALL_TOOLS
+
+MAX_TOOL_ATTEMPTS = 3
 
 AGENT_PROMPT = """You are an expert travel planner agent for Indian domestic trips.
 
@@ -29,6 +32,7 @@ Collect the data needed for the trip by calling the tools:
 
 Rules:
 - Use ONLY data returned by the tools. Never invent flights, hotels, places, prices, temperatures or ratings.
+- Pass tool arguments as plain strings and numbers only (for example min_rating 0, limit 8, place_types "temple,beach").
 - When all tool calls are finished, reply with one short plain sentence such as "All data collected." Do not write the itinerary and do not write any JSON.
 """
 
@@ -216,12 +220,23 @@ def run_agent(params: dict[str, Any], provider_name: str, api_key: str | None = 
     llm = get_llm(provider_name, api_key, model)
     request = build_user_prompt(params)
 
-    # Stage 1: the agent calls the tools.
-    result = build_agent(llm).invoke(
-        {"messages": [{"role": "user", "content": request}]},
-        config={"recursion_limit": 30},
-    )
-    messages = result["messages"]
+    # Stage 1: the agent calls the tools. Small free models sometimes produce a malformed
+    # tool call (Groq error "tool_use_failed"), so that specific error is retried.
+    agent = build_agent(llm)
+    messages = None
+    for attempt in range(1, MAX_TOOL_ATTEMPTS + 1):
+        try:
+            result = agent.invoke(
+                {"messages": [{"role": "user", "content": request}]},
+                config={"recursion_limit": 30},
+            )
+            messages = result["messages"]
+            break
+        except Exception as error:  # noqa: BLE001 - re-raised unless it is the known tool-call glitch
+            retryable = "tool_use_failed" in str(error) or "Failed to parse tool call" in str(error)
+            if not retryable or attempt == MAX_TOOL_ATTEMPTS:
+                raise
+            time.sleep(1)
     facts = _collect_tool_results(messages)
     if not facts:
         raise ValueError("The AI did not call any tools.")
